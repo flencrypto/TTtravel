@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <title>Christina's South American Adventure</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&amp;libraries=places"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;600;700&display=swap');
@@ -231,7 +231,7 @@
                         Trip Map
                     </h2>
                 </div>
-                <div class="map-container relative">
+                <div id="interactive-map" class="map-container relative">
                     <div class="absolute bottom-4 left-4 bg-white bg-opacity-90 rounded-lg px-3 py-2 shadow-md">
                         <div class="flex items-center">
                             <img src="https://flagcdn.com/w20/br.png" class="country-flag" alt="Brazil">
@@ -248,7 +248,8 @@
                     </div>
                 </div>
             </div>
-            
+        </div>
+
         <!-- Itinerary Page -->
         <div id="itinerary-page" class="hidden bg-white min-h-screen pb-24">
             <div class="sticky top-0 bg-white p-4 border-b flex items-center justify-between z-10">
@@ -354,7 +355,6 @@
             </div>
             <div class="collapsible-content max-h-[500px]" data-expanded="true">
                 <div class="p-4">
-=======
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
                         <h3 class="font-semibold mb-2 text-gray-700"><i class="fas fa-tshirt mr-2"></i>Clothing</h3>
@@ -435,6 +435,7 @@
                 </div>
             </div>
         </div>
+    </div>
 
         <!-- Photo Gallery -->
         <div class="bg-white rounded-xl shadow-md mb-12">
@@ -449,7 +450,6 @@
             </div>
             <div class="collapsible-content max-h-[500px]" data-expanded="true">
                 <div class="p-4">
-=======
                 <div class="photo-gallery" id="photo-container">
                     <!-- Photos will be loaded here with metadata -->
                 </div>
@@ -468,6 +468,7 @@
             </div>
         </div>
 
+        </div>
         <!-- Nearby Recommendations -->
         <div class="bg-white rounded-xl shadow-md mb-12">
             <div class="p-4 border-b flex justify-between items-center">
@@ -481,7 +482,6 @@
             </div>
             <div class="collapsible-content max-h-[500px]" data-expanded="true">
                 <div class="p-4">
-=======
                 <div class="flex flex-col mb-4">
                     <div class="flex">
                         <select id="place-type" class="border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -509,6 +509,7 @@
                 <div id="location-status" class="text-sm text-gray-500 mt-2"></div>
             </div>
         </div>
+    </div>
 
         <!-- Highlights -->
         <div class="bg-white rounded-xl shadow-md">
@@ -523,7 +524,6 @@
             </div>
             <div class="collapsible-content max-h-[500px]" data-expanded="true">
                 <div class="p-4">
-=======
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-gray-50 rounded-lg p-4">
                         <div class="flex items-center mb-3">
@@ -583,6 +583,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </main>
 
     <!-- Footer -->
@@ -631,6 +632,11 @@
         </div>
     </div>
 
+    <!-- Photo Viewer Modal -->
+    <div id="photo-modal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden flex items-center justify-center">
+        <img id="photo-modal-img" src="" class="max-w-full max-h-full rounded-lg shadow-xl" alt="Photo view">
+    </div>
+
     <script>
         // Device capabilities detection
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -662,9 +668,9 @@
                 placesService = new google.maps.places.PlacesService(map);
                 
                 // Add current location button
-                document.getElementById('current-location').addEventListener('click', centerMapOnLocation);
-                document.getElementById('show-route').addEventListener('click', showRoute);
-                document.getElementById('save-location').addEventListener('click', saveCurrentLocation);
+                // Buttons may not be present in the current layout, so check before attaching
+                const currentBtn = document.getElementById('current-location');
+                if (currentBtn) currentBtn.addEventListener('click', centerMapOnLocation);
             }
         }
 
@@ -738,9 +744,10 @@
             
             const type = document.getElementById('place-type').value;
             const typeName = document.getElementById('place-type').options[document.getElementById('place-type').selectedIndex].text;
+            const radius = parseInt(document.getElementById('distance-range').value);
             const request = {
                 location: currentLocation,
-                radius: 1000, // 1km radius
+                radius: radius,
                 type: [type]
             };
             
@@ -781,9 +788,46 @@
                 }
                 
                 // Show modal
-                modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            });
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        });
+        }
+
+        // Get user's location and then find nearby places
+        function getLocation() {
+            if (!hasGPS) {
+                alert('GPS not available on this device');
+                return;
+            }
+
+            const statusElement = document.getElementById('location-status');
+            statusElement.textContent = 'Getting your location...';
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    currentLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    currentAccuracy = position.coords.accuracy;
+
+                    if (map) {
+                        map.setCenter(currentLocation);
+                        map.setZoom(15);
+                    }
+
+                    statusElement.textContent = `Location found (Accuracy: ${Math.round(currentAccuracy)}m)`;
+                    findNearbyPlaces();
+                },
+                (error) => {
+                    statusElement.textContent = 'Error getting location: ' + error.message;
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
         }
 
         // Initialize map and set up event listeners
@@ -842,42 +886,7 @@
         setViewportHeight();
         window.addEventListener('resize', setViewportHeight);
         
-        // Toggle packing items
-        document.querySelectorAll('.packing-item input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const item = this.closest('.packing-item');
-                if (this.checked) {
-                    item.classList.add('completed');
-                } else {
-                    item.classList.remove('completed');
-                }
-            });
-        });
-        
-        // Add new packing item
-        document.querySelector('.packing-list button').addEventListener('click', function() {
-            const input = document.querySelector('.packing-list input[type="text"]');
-            if (input.value.trim() !== '') {
-                const list = document.querySelector('.packing-list ul');
-                const newItem = document.createElement('li');
-                newItem.className = 'packing-item flex items-center';
-                newItem.innerHTML = `
-                    <input type="checkbox" class="mr-2 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                    <span>${input.value}</span>
-                `;
-                list.appendChild(newItem);
-                input.value = '';
-                
-                // Add event listener to new checkbox
-                newItem.querySelector('input').addEventListener('change', function() {
-                    if (this.checked) {
-                        newItem.classList.add('completed');
-                    } else {
-                        newItem.classList.remove('completed');
-                    }
-                });
-            }
-        });
+        // Toggle packing items and persistence handled below
         
         // Collapsible sections functionality
         document.querySelectorAll('.toggle-btn').forEach(button => {
@@ -964,6 +973,113 @@
         
         // Initial display
         displayPhotos();
+
+        // Distance slider label
+        const distanceRange = document.getElementById('distance-range');
+        const distanceValue = document.getElementById('distance-value');
+        if (distanceRange) {
+            const updateDistance = () => {
+                const val = parseInt(distanceRange.value, 10);
+                distanceValue.textContent = val >= 1000 ? `${val/1000} km` : `${val} m`;
+            };
+            distanceRange.addEventListener('input', updateDistance);
+            updateDistance();
+        }
+
+        // Calendar event download
+        document.querySelectorAll('.calendar-btn').forEach(btn => {
+            btn.addEventListener('click', e => {
+                const title = btn.dataset.title;
+                const start = new Date(btn.dataset.start);
+                const end = new Date(btn.dataset.end);
+                const location = btn.dataset.location || '';
+
+                const pad = n => String(n).padStart(2, '0');
+                const fmt = d => d.getUTCFullYear() + pad(d.getUTCMonth()+1) + pad(d.getUTCDate()) + 'T' +
+                    pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + '00Z';
+
+                const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${title}\nDTSTART:${fmt(start)}\nDTEND:${fmt(end)}\nLOCATION:${location}\nEND:VEVENT\nEND:VCALENDAR`;
+                const blob = new Blob([ics], {type: 'text/calendar'});
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${title.replace(/\s+/g,'_')}.ics`;
+                link.click();
+                URL.revokeObjectURL(url);
+            });
+        });
+
+        // Directions buttons
+        document.querySelectorAll('.directions-btn').forEach(btn => {
+            btn.addEventListener('click', e => {
+                e.preventDefault();
+                const lat = btn.dataset.lat;
+                const lng = btn.dataset.lng;
+                window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
+            });
+        });
+
+        // Packing list persistence
+        const packingList = document.querySelector('.packing-list ul');
+        let packingItems = JSON.parse(localStorage.getItem('packingItems')) || null;
+        const rebuildItem = (text, checked) => {
+            const li = document.createElement('li');
+            li.className = 'packing-item flex items-center';
+            li.innerHTML = `<input type="checkbox" class="mr-2 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"><span>${text}</span>`;
+            const cb = li.querySelector('input');
+            cb.checked = checked;
+            if (checked) li.classList.add('completed');
+            cb.addEventListener('change', () => {
+                li.classList.toggle('completed', cb.checked);
+                savePacking();
+            });
+            packingList.appendChild(li);
+        };
+
+        function savePacking() {
+            const arr = Array.from(packingList.children).map(li => ({
+                text: li.querySelector('span').textContent,
+                checked: li.querySelector('input').checked
+            }));
+            localStorage.setItem('packingItems', JSON.stringify(arr));
+        }
+
+        if (packingItems) {
+            packingList.innerHTML = '';
+            packingItems.forEach(it => rebuildItem(it.text, it.checked));
+        } else {
+            packingItems = Array.from(packingList.children).map(li => ({
+                text: li.querySelector('span').textContent,
+                checked: li.querySelector('input').checked
+            }));
+            localStorage.setItem('packingItems', JSON.stringify(packingItems));
+            packingList.querySelectorAll('input').forEach(cb => cb.addEventListener('change', savePacking));
+        }
+
+        document.querySelector('.packing-list button').addEventListener('click', function() {
+            const input = document.querySelector('.packing-list input[type="text"]');
+            if (input.value.trim() !== '') {
+                rebuildItem(input.value, false);
+                input.value = '';
+                savePacking();
+            }
+        });
+
+        // Photo modal viewer
+        const photoModal = document.getElementById('photo-modal');
+        const photoModalImg = document.getElementById('photo-modal-img');
+        photoGallery.addEventListener('click', e => {
+            if (e.target.classList.contains('photo-item') && e.target.style.backgroundImage) {
+                const url = e.target.style.backgroundImage.slice(5, -2);
+                photoModalImg.src = url;
+                photoModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        });
+        photoModal.addEventListener('click', () => {
+            photoModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        });
     </script>
 </body>
 </html>
