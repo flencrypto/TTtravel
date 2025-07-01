@@ -231,7 +231,7 @@
                         Trip Map
                     </h2>
                 </div>
-                <div class="map-container relative">
+                <div id="interactive-map" class="map-container relative">
                     <div class="absolute bottom-4 left-4 bg-white bg-opacity-90 rounded-lg px-3 py-2 shadow-md">
                         <div class="flex items-center">
                             <img src="https://flagcdn.com/w20/br.png" class="country-flag" alt="Brazil">
@@ -354,7 +354,6 @@
             </div>
             <div class="collapsible-content max-h-[500px]" data-expanded="true">
                 <div class="p-4">
-=======
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
                         <h3 class="font-semibold mb-2 text-gray-700"><i class="fas fa-tshirt mr-2"></i>Clothing</h3>
@@ -449,7 +448,6 @@
             </div>
             <div class="collapsible-content max-h-[500px]" data-expanded="true">
                 <div class="p-4">
-=======
                 <div class="photo-gallery" id="photo-container">
                     <!-- Photos will be loaded here with metadata -->
                 </div>
@@ -481,7 +479,6 @@
             </div>
             <div class="collapsible-content max-h-[500px]" data-expanded="true">
                 <div class="p-4">
-=======
                 <div class="flex flex-col mb-4">
                     <div class="flex">
                         <select id="place-type" class="border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -523,7 +520,6 @@
             </div>
             <div class="collapsible-content max-h-[500px]" data-expanded="true">
                 <div class="p-4">
-=======
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-gray-50 rounded-lg p-4">
                         <div class="flex items-center mb-3">
@@ -662,9 +658,9 @@
                 placesService = new google.maps.places.PlacesService(map);
                 
                 // Add current location button
-                document.getElementById('current-location').addEventListener('click', centerMapOnLocation);
-                document.getElementById('show-route').addEventListener('click', showRoute);
-                document.getElementById('save-location').addEventListener('click', saveCurrentLocation);
+                // Buttons may not be present in the current layout, so check before attaching
+                const currentBtn = document.getElementById('current-location');
+                if (currentBtn) currentBtn.addEventListener('click', centerMapOnLocation);
             }
         }
 
@@ -781,9 +777,46 @@
                 }
                 
                 // Show modal
-                modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            });
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        });
+        }
+
+        // Get user's location and then find nearby places
+        function getLocation() {
+            if (!hasGPS) {
+                alert('GPS not available on this device');
+                return;
+            }
+
+            const statusElement = document.getElementById('location-status');
+            statusElement.textContent = 'Getting your location...';
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    currentLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    currentAccuracy = position.coords.accuracy;
+
+                    if (map) {
+                        map.setCenter(currentLocation);
+                        map.setZoom(15);
+                    }
+
+                    statusElement.textContent = `Location found (Accuracy: ${Math.round(currentAccuracy)}m)`;
+                    findNearbyPlaces();
+                },
+                (error) => {
+                    statusElement.textContent = 'Error getting location: ' + error.message;
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
         }
 
         // Initialize map and set up event listeners
