@@ -11,7 +11,7 @@ function AITripGen() {
     try {
       const res = await generateTrip(`Plan a trip to ${location}`)
       setResult(res.plan)
-    } catch (e) {
+    } catch {
       setResult('Failed to get plan')
     }
     setLoading(false)

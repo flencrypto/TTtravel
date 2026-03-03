@@ -1,7 +1,8 @@
 import React from 'react'
 
 function MapViewer({ lat, lng }) {
-  const src = `https://www.google.com/maps/embed/v1/view?key=YOUR_API_KEY&center=${lat},${lng}&zoom=14`;
+  const delta = 0.05
+  const src = `https://www.openstreetmap.org/export/embed.html?bbox=${lng - delta},${lat - delta},${lng + delta},${lat + delta}&layer=mapnik&marker=${lat},${lng}`
   return (
     <div className="w-full h-64">
       <iframe
@@ -13,7 +14,7 @@ function MapViewer({ lat, lng }) {
         allowFullScreen
       />
     </div>
-  );
+  )
 }
 
-export default MapViewer;
+export default MapViewer
