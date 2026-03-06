@@ -8,6 +8,7 @@ const links = [
   { to: '/ai', label: '🤖 AI Planner' },
   { to: '/calendar', label: '📅 Trips' },
   { to: '/settings', label: '⚙️ Settings' },
+  { to: '/setup', label: '🔧 Setup' },
 ]
 
 function Navbar() {

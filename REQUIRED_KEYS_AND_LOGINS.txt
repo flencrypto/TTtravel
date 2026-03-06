@@ -1,0 +1,108 @@
+REQUIRED KEYS AND LOGINS — TT's Travels
+Generated: 2026-03-06
+================================================================
+
+This file lists every external credential, API key, and permission
+required to run all features of TT's Travels.  Features that do NOT
+appear here work out of the box with no setup.
+
+================================================================
+1. AI TRIP PLANNER — OpenAI API Key
+================================================================
+
+Feature: Generates a personalised, day-by-day travel itinerary for
+         any destination using OpenAI GPT.
+
+What is unlocked: The "Generate Trip" button on /ai sends your
+                  destination to OpenAI and returns a real,
+                  AI-written itinerary.
+
+Without this key: Clicking "Generate Trip" will show a Setup modal
+                  explaining what is missing and how to fix it.
+                  No itinerary is generated until the key is present.
+
+Required env var:
+  VITE_OPENAI_API_KEY=sk-...
+
+Optional env var (defaults to gpt-3.5-turbo):
+  VITE_OPENAI_MODEL=gpt-4o
+
+OAuth / login required: No
+
+Where to get it:
+  1. Sign up (free tier available) at https://platform.openai.com/signup
+  2. Go to Dashboard → API Keys → "Create new secret key"
+  3. Copy the key (shown only once)
+  4. Create or edit the file  tt-travels/.env  and add:
+       VITE_OPENAI_API_KEY=sk-<your-key-here>
+  5. Restart the Vite dev server:  npm run dev
+  6. For production builds run:    npm run build
+
+Official link: https://platform.openai.com/api-keys
+Pricing info:  https://openai.com/pricing
+
+Affected UI routes/actions:
+  - Page:   /ai (AI Trip Planner)
+  - Action: "Generate Trip" button
+
+Security note:
+  This is a client-side Vite app.  VITE_* env vars are embedded in
+  the browser bundle and are visible to anyone who inspects the build.
+  For production deployments, proxy OpenAI calls through a server-side
+  function (Netlify Functions, Vercel Edge, etc.) and store the key as
+  a server-only secret.  Never commit the .env file to version control.
+
+================================================================
+2. EXPLORE NEARBY — Browser Geolocation Permission
+================================================================
+
+Feature: Displays your current position on an OpenStreetMap map and
+         shows live weather from Open-Meteo.
+
+What is unlocked: The /explore page shows an interactive map centred
+                  on your location plus the current temperature.
+
+Without permission: The page shows "Unable to retrieve location" and
+                    the map/weather are not displayed.
+
+Required env var: None
+OAuth / login required: No — browser permission prompt only.
+
+Where to enable it:
+  1. Visit the Explore page (/explore).
+  2. When the browser asks "Allow [site] to know your location?",
+     click Allow.
+  3. If you already denied permission:
+     • Chrome/Edge: Click the lock icon in the address bar →
+       Site settings → Location → Allow
+     • Firefox: Click the shield/lock icon → Clear permission →
+       reload the page and allow when prompted.
+     • Safari: Settings → Websites → Location → Allow for this site.
+
+Official reference:
+  https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
+
+Affected UI routes/actions:
+  - Page:   /explore (Explore Nearby)
+  - Action: Page load (geolocation requested automatically)
+
+Note: Map tiles come from OpenStreetMap (free, no key required).
+      Weather data comes from Open-Meteo (free, no key required).
+
+================================================================
+3. FEATURES THAT WORK WITH NO SETUP
+================================================================
+
+The following features are fully operational without any API key,
+login, or special browser permission:
+
+  • Home (/)               — Static page, no dependencies.
+  • Photo Journal (/journal) — Local file upload; photos are stored
+                               in browser memory only (not persisted).
+  • My Trips (/calendar)   — Trip data saved to localStorage.
+  • Settings (/settings)   — Preferences saved to localStorage.
+  • Setup (/setup)         — Shows integration status (this system).
+
+================================================================
+END OF FILE
+================================================================

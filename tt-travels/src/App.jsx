@@ -7,6 +7,7 @@ import Journal from './pages/Journal'
 import AI from './pages/AI'
 import Calendar from './pages/Calendar'
 import Settings from './pages/Settings'
+import Setup from './pages/Setup'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/ai" element={<AI />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/setup" element={<Setup />} />
         </Routes>
       </div>
     </Router>
