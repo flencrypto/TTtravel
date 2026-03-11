@@ -12,17 +12,28 @@ import Setup from './pages/Setup'
 function App() {
   return (
     <Router>
-      <Navbar />
-      <div className="max-w-3xl mx-auto">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route path="/journal" element={<Journal />} />
-          <Route path="/ai" element={<AI />} />
-          <Route path="/calendar" element={<Calendar />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/setup" element={<Setup />} />
-        </Routes>
+      <a href="#main-content" className="skip-link">
+        Skip to content
+      </a>
+      <div className="min-h-screen travel-app-bg relative overflow-hidden">
+        <div className="decor-orb decor-orb-left" aria-hidden="true" />
+        <div className="decor-orb decor-orb-right" aria-hidden="true" />
+        <div className="decor-grid" aria-hidden="true" />
+
+        <div className="relative mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8 space-y-6">
+          <Navbar />
+          <main id="main-content" tabIndex={-1} className="glass-panel rounded-3xl p-4 md:p-8">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/explore" element={<Explore />} />
+              <Route path="/journal" element={<Journal />} />
+              <Route path="/ai" element={<AI />} />
+              <Route path="/calendar" element={<Calendar />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/setup" element={<Setup />} />
+            </Routes>
+          </main>
+        </div>
       </div>
     </Router>
   )
