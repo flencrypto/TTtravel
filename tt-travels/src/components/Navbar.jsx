@@ -19,7 +19,7 @@ function Navbar() {
           <h1 className="text-lg md:text-xl font-semibold text-slate-900">Design-forward travel command center</h1>
         </div>
         <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-emerald-50/80 px-3 py-1 text-xs font-semibold text-emerald-700">
-          <span className="h-2 w-2 rounded-full bg-emerald-500 pulse-dot" />
+          <span className="h-2 w-2 rounded-full bg-emerald-500 pulse-dot" aria-hidden="true" />
           Platform status: healthy
         </div>
       </div>
