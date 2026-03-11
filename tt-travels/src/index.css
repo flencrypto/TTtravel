@@ -48,6 +48,12 @@
     z-index: 20;
   }
 
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+  }
+
   .glass-surface {
     border: 1px solid rgba(255, 255, 255, 0.45);
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.08));
@@ -297,5 +303,18 @@
   .feature-card,
   .pulse-dot {
     animation: none;
+  }
+
+  .feature-card,
+  .feature-card:hover,
+  .feature-card:focus-visible,
+  .quick-action-link,
+  .quick-action-link:hover,
+  .quick-action-link:focus-visible,
+  .cta-primary,
+  .cta-primary:hover,
+  .cta-primary:focus-visible {
+    transition: none !important;
+    transform: none !important;
   }
 }

@@ -22,7 +22,7 @@ function App() {
 
         <div className="relative mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8 space-y-6">
           <Navbar />
-          <main id="main-content" className="glass-panel rounded-3xl p-4 md:p-8">
+          <main id="main-content" tabIndex={-1} className="glass-panel rounded-3xl p-4 md:p-8">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/explore" element={<Explore />} />
