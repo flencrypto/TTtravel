@@ -13,8 +13,20 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     const serviceWorkerPath = `${import.meta.env.BASE_URL}service-worker.js`
 
-    navigator.serviceWorker.register(serviceWorkerPath, { scope: import.meta.env.BASE_URL }).catch((error) => {
-      console.warn('Service worker registration failed', error)
-    })
+    if (import.meta.env.PROD) {
+      navigator.serviceWorker
+        .register(serviceWorkerPath, { scope: import.meta.env.BASE_URL })
+        .catch((error) => {
+          console.warn('Service worker registration failed', error)
+        })
+    } else {
+      navigator.serviceWorker
+        .getRegistrations()
+        .then((registrations) => {
+          for (const registration of registrations) {
+            registration.unregister().catch(() => {})
+          }
+        })
+    }
   })
 }
