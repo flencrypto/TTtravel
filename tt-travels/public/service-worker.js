@@ -1,6 +1,6 @@
-const STATIC_CACHE = 'tt-travel-static-v2';
-const RUNTIME_CACHE = 'tt-travel-runtime-v2';
-const API_CACHE = 'tt-travel-api-v2';
+const STATIC_CACHE = 'tt-travel-static-v3';
+const RUNTIME_CACHE = 'tt-travel-runtime-v3';
+const API_CACHE = 'tt-travel-api-v3';
 
 const OFFLINE_URL = 'offline.html';
 const PRECACHE_ASSETS = ['.', OFFLINE_URL, 'manifest.json', 'vite.svg'];
@@ -36,7 +36,11 @@ const isApiRequest = (requestUrl, request) => {
     return false;
   }
 
-  return requestUrl.origin === self.location.origin && requestUrl.pathname.startsWith('/api/');
+  const scopePath = new URL(self.registration.scope).pathname;
+  const basePath = scopePath.endsWith('/') ? scopePath : `${scopePath}/`;
+  const apiPrefix = `${basePath}api/`;
+
+  return requestUrl.origin === self.location.origin && requestUrl.pathname.startsWith(apiPrefix);
 };
 
 self.addEventListener('fetch', (event) => {
@@ -49,7 +53,7 @@ self.addEventListener('fetch', (event) => {
   const requestUrl = new URL(request.url);
 
   if (isApiRequest(requestUrl, request)) {
-    event.respondWith(staleWhileRevalidate(request, API_CACHE));
+    event.respondWith(staleWhileRevalidate(event, request, API_CACHE));
     return;
   }
 
@@ -65,20 +69,21 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(cacheFirstStatic(request));
 });
 
-async function staleWhileRevalidate(request, cacheName) {
+async function staleWhileRevalidate(event, request, cacheName) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
 
   const networkPromise = fetch(request)
-    .then((response) => {
+    .then(async (response) => {
       if (response.ok) {
-        cache.put(request, response.clone());
+        await cache.put(request, response.clone());
       }
       return response;
     })
     .catch(() => null);
 
   if (cached) {
+    event.waitUntil(networkPromise);
     return cached;
   }
 
@@ -99,7 +104,7 @@ async function networkFirstNavigation(request) {
 
     if (response.ok) {
       const cache = await caches.open(RUNTIME_CACHE);
-      cache.put(request, response.clone());
+      await cache.put(request, response.clone());
     }
 
     return response;
@@ -128,7 +133,7 @@ async function cacheFirstStatic(request) {
     const response = await fetch(request);
     if (response.ok) {
       const cache = await caches.open(RUNTIME_CACHE);
-      cache.put(request, response.clone());
+      await cache.put(request, response.clone());
     }
     return response;
   } catch {
