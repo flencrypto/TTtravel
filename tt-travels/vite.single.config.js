@@ -4,6 +4,7 @@ import { viteSingleFile } from 'vite-plugin-singlefile'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  cacheDir: 'node_modules/.vite-single',
   plugins: [
     react(),
     viteSingleFile(),
