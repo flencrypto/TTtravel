@@ -30,14 +30,15 @@ function InstallAppPrompt() {
       return
     }
 
-    await promptEvent.prompt()
-    const result = await promptEvent.userChoice
-
-    if (result.outcome !== 'accepted') {
+    try {
+      await promptEvent.prompt()
+      await promptEvent.userChoice
+    } catch {
+      // Swallow errors to ensure state is cleaned up below
+    } finally {
       setVisible(false)
+      setPromptEvent(null)
     }
-
-    setPromptEvent(null)
   }
 
   if (!visible) {
